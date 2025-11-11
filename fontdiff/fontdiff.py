@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from fontdiff.dot_dict import DotDict
 from fontdiff.raster_compare import create_atlas
+from fontdiff import __version__
 
 
 PROG_NAME = "fontdiff"
@@ -19,6 +20,11 @@ def create_parser(config):
     parser = argparse.ArgumentParser(
         description="Compares fonts",
         prefix_chars="-+",
+    )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=f'{PROG_NAME} {__version__}'
     )
     parser.add_argument(
         "--cell-size",
