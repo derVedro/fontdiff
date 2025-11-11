@@ -46,7 +46,7 @@ def create_parser(config):
                 action="append_const",
                 const=value,
                 dest="additional_chars",
-                help=f"{value.replace("%", "%%")}",
+                help=value.replace("%", "%%"),
                 default=argparse.SUPPRESS,
             )
 
