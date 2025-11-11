@@ -126,7 +126,6 @@ def init_config():
     # cell, font, baseline sizes calculation part
     #
     if current_config.cell_size != default.cell_size:
-        from defaults import _FONT_SIZE_FACTOR, _BASE_LINE_FACTOR
 
         if hasattr(args, "cell_size") and args.cell_size != default.cell_size:
             current_config["font_size"] = round(
@@ -208,7 +207,7 @@ def init_config():
     return current_config
 
 
-if __name__ == "__main__":
+def main():
     current_config = init_config()
     font_atlas = create_atlas(current_config)
 
@@ -216,3 +215,7 @@ if __name__ == "__main__":
         font_atlas.show()
     else:
         font_atlas.save(sys.stdout, format="png")
+
+
+if __name__ == "__main__":
+    main()
