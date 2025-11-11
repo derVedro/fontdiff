@@ -37,6 +37,6 @@ fontdiff fontA.ttf fontB.ttf > diff.png
 
 ## Miscellaneous
 You can configure fontdiff by putting a toml `config` file into
-`$XDG_CONFIG_HOME/fontdiff/` or `$HOME/.fontdiff/` directory. An example
+`$XDG_CONFIG_HOME/fontdiff/` or `$HOME/.fontdiff/` directory. An [example](config)
 configuration file is provided in this repository. It's worth taking a look if
 you need additional functionality like character sets, size or color settings.
