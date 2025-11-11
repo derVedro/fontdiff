@@ -1,0 +1,18 @@
+[project]
+name = "fontdiff"
+requires-python = ">=3.11"
+dependencies = [
+    "pillow>=10.1.0",
+]
+dynamic = ["version", "description"]
+readme = "README.md"
+
+[project.scripts]
+fontdiff = "fontdiff.fontdiff:main"
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "fontdiff"

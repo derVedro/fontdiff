@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 import os, sys, tomllib, tempfile, argparse
 from pathlib import Path
-from dot_dict import DotDict
-from raster_compare import create_atlas
+
+# I believe this is unfortunately necessary to be runnable as a script as well
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from fontdiff.dot_dict import DotDict
+from fontdiff.raster_compare import create_atlas
+
 
 PROG_NAME = "fontdiff"
 
@@ -57,10 +62,10 @@ def read_defaults() -> DotDict:
     """
     Read build-in defaults.
     """
-    import defaults, alphabets
+    import fontdiff.defaults, fontdiff.alphabets
 
-    config = DotDict.from_module(defaults)
-    config["charsets"] = DotDict.from_module(alphabets)
+    config = DotDict.from_module(fontdiff.defaults)
+    config["charsets"] = DotDict.from_module(fontdiff.alphabets)
 
     return config
 
