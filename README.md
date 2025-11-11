@@ -4,6 +4,21 @@
 fontdiff is a tool to visually compare differences between two fonts by
 displaying character atlases overlaid.
 
+## Install
+You can quickly install fontdiff into your home directory straight from github:
+```
+pip install --user git+https://github.com/derVedro/fontdiff.git
+```
+
+Alternatively, you can clone the repo and simply run fontdiff.py as a script,
+or even place a symlink of fontdiff.py to your preferred bin directory. 
+```
+git clone https://github.com/derVedro/fontdiff.git
+cd fontdiff/fontdiff
+chmod +x fontdiff.py
+ln -s $PWD/fontdiff.py ~/bin/fontdiff
+```
+
 ## Usage Example
 ```
 fontdiff fontA.ttf fontB.ttf
@@ -17,7 +32,7 @@ fontdiff fontA.ttf fontB.ttf > diff.png
 
 ## Dependencies
 - python ≥3.11
-- pillow ≥10.1.0 (9.2.0 could do)
+- pillow ≥10.1.0
 - numpy (optional)
 
 ## Miscellaneous
