@@ -16,8 +16,8 @@ fontdiff fontA.ttf fontB.ttf > diff.png
 ```
 
 ## Dependencies
-- python ≥3.10
-- pillow
+- python ≥3.11
+- pillow ≥10.1.0 (9.2.0 could do)
 - numpy (optional)
 
 ## Miscellaneous

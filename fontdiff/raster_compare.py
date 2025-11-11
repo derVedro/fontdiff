@@ -232,7 +232,7 @@ def create_atlas(config):
     #
     for font in ["font_A", "font_B"]:
         try:
-            config[font] = ImageFont.truetype(config[font], config.font_size)
+            config[font] = ImageFont.truetype(str(config[font]), config.font_size)
         except OSError as e:
             print(f"Could not load '{config[font]}': {e}", file=sys.stderr)
             exit(1)
