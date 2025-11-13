@@ -37,7 +37,7 @@ overlap_color         = "white"         # Color of the fonts overlap
 
 # Your own aliases for character set, you can use on the command line with `+<name>`.
 [charsets]
-umlauts = 'ÄäÖöÜü'    # Example of a more exotic character set.
+umlauts = "ÄäÖöÜü"    # Example of a more exotic character set.
 latin   = "abcdefg"   # You can override build-in character sets.
 
 
