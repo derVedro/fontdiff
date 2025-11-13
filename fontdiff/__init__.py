@@ -1,5 +1,5 @@
 """
-    This package is not intended for importing. Run fontdiff on your shell instead.
+    Command line tool to visually compare two fonts.
 """
 
 __version__ = "0.1"

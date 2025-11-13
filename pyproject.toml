@@ -6,6 +6,15 @@ dependencies = [
 ]
 dynamic = ["version", "description"]
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name="derVedro", email="dervedro@googlemail.com" },
+]
+
+[project.urls]
+Homepage = "https://github.com/derVedro/fontdiff"
+Issues = "https://github.com/derVedro/fontdiff/issues"
 
 [project.scripts]
 fontdiff = "fontdiff.fontdiff:main"
