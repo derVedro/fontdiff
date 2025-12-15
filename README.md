@@ -19,15 +19,22 @@ chmod +x fontdiff.py
 ln -s $PWD/fontdiff.py ~/bin/fontdiff
 ```
 
-## Usage Example
+## Usage Examples
 ```
+# regular usage
 fontdiff fontA.ttf fontB.ttf
-# you can use some predefined chars set
+
+# you can use some predefined char sets
 fontdiff fontA.ttf fontB.ttf +greek +numerals
+
 # or even try more options
 fontdiff --cell-size 30 --chars "abcde1234!@#$" fontA.ttf fontB.ttf
+
 # save result as file
 fontdiff fontA.ttf fontB.ttf > diff.png
+
+# consider to check all the possible options
+fontdiff --help
 ```
 
 ## Dependencies
