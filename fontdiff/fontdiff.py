@@ -5,7 +5,7 @@ from pathlib import Path
 # I believe this is unfortunately necessary to be runnable as a script as well
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fontdiff.dot_dict import DotDict
+from fontdiff.config import Config
 from fontdiff.raster_compare import create_atlas
 from fontdiff import __version__
 
@@ -64,14 +64,14 @@ def create_parser(config):
     return parser
 
 
-def read_defaults() -> DotDict:
+def read_defaults() -> Config:
     """
     Read build-in defaults.
     """
     import fontdiff.defaults, fontdiff.alphabets
 
-    config = DotDict.from_module(fontdiff.defaults)
-    config["charsets"] = DotDict.from_module(fontdiff.alphabets)
+    config = Config().update_from_module(fontdiff.defaults)
+    config.charsets = Config().update_from_module(fontdiff.alphabets)
 
     return config
 
@@ -90,11 +90,11 @@ def read_config():
     if config_path.exists():
         with config_path.open("rb") as config_file:
             try:
-                return DotDict(tomllib.load(config_file))
+                return Config().update_from_dict(tomllib.load(config_file))
             except tomllib.TOMLDecodeError as e:
                 print(f"Bad config file {config_path}:\n{e}", file=sys.stderr)
 
-    return DotDict()
+    return Config()
 
 
 def init_config():
@@ -109,12 +109,12 @@ def init_config():
 
     # toml config overrides defaults, args overrides toml config file
     default = read_defaults()
-    current_config = DotDict(default)  # get a copy!
+    current_config = Config(default)  # get a copy!
     toml = read_config()
     current_config.update(toml)
     parser = create_parser(current_config)  # parser already depends on config!
     args = parser.parse_args()
-    current_config.update(args.__dict__)
+    current_config.update_from_dict(args.__dict__)
 
     ##########################################################################
     #
@@ -124,13 +124,13 @@ def init_config():
         "".join(args.additional_chars) if hasattr(args, "additional_chars") else ""
     )
     if args.chars:
-        current_config["chars"] = args.chars + additional_chars
-    elif hasattr(toml, "chars") and toml.chars:
-        current_config["chars"] = toml.chars + additional_chars
+        current_config.chars = args.chars + additional_chars
+    elif toml.get("chars"):
+        current_config.chars = toml.chars + additional_chars
     elif additional_chars:
-        current_config["chars"] = additional_chars
+        current_config.chars = additional_chars
     else:
-        current_config["chars"] = default.chars
+        current_config.chars = default.chars
 
     ##########################################################################
     #
@@ -139,44 +139,44 @@ def init_config():
     if current_config.cell_size != default.cell_size:
 
         if hasattr(args, "cell_size") and args.cell_size != default.cell_size:
-            current_config["font_size"] = round(
+            current_config.font_size = round(
                 args.cell_size * current_config._font_size_factor
             )
-            current_config["base_line"] = round(
+            current_config.base_line = round(
                 args.cell_size * current_config._base_line_factor
             )
         else:
-            current_config["font_size"] = toml.get(
+            current_config.font_size = toml.get(
                 "font_size",
                 round(current_config.cell_size * current_config._font_size_factor),
             )
-            current_config["base_line"] = toml.get(
+            current_config.base_line = toml.get(
                 "base_line",
                 round(current_config.cell_size * current_config._base_line_factor),
             )
 
-    current_config["cell_width"] = current_config.get(
+    current_config.cell_width = current_config.get(
         "cell_width", current_config.cell_size
     )
-    current_config["cell_height"] = current_config.get(
+    current_config.cell_height= current_config.get(
         "cell_height", current_config.cell_size
     )
 
     ##########################################################################
     #
-    # all necessary calculation for grid size: colums and rows amount
+    # all necessary calculation for grid size: columns and rows amount
     #
     import math
 
     len_chars = len(current_config.chars)
-    has_vertical = hasattr(current_config, "rows") and current_config.rows
-    has_horizontal = hasattr(current_config, "cols") and current_config.cols
+    has_vertical = current_config.get("rows", 0) > 0
+    has_horizontal = current_config.get("cols", 0) > 0
     if has_vertical and has_horizontal:
         pass
     elif has_vertical and not has_horizontal:
-        current_config["cols"] = math.ceil(len_chars / current_config.rows)
+        current_config.cols = math.ceil(len_chars / current_config.rows)
     elif not has_vertical and has_horizontal:
-        current_config["rows"] = math.ceil(len_chars / current_config.cols)
+        current_config.rows = math.ceil(len_chars / current_config.cols)
     elif not has_vertical and not has_horizontal:
         root = math.ceil(len_chars**0.5)
         lower_bound = math.floor(current_config._cols_rows_ratio**-0.5 * root) or 1
@@ -184,8 +184,8 @@ def init_config():
             map(lambda probe: (len_chars % probe, probe), range(lower_bound, root + 1)),
             key=lambda some: some[0],
         )
-        current_config["rows"] = side
-        current_config["cols"] = math.ceil(len_chars / side)
+        current_config.rows = side
+        current_config.cols = math.ceil(len_chars / side)
 
     ##########################################################################
     #
@@ -210,7 +210,7 @@ def init_config():
     tmp_base = Path(
         current_config.get("temp_dir", Path(tempfile.gettempdir()) / PROG_NAME)
     )
-    current_config["temp_dir"] = str(tmp_base)
+    current_config.temp_dir = str(tmp_base)
     tmp_base.mkdir(parents=True, exist_ok=True)
     os.environ["TMPDIR"] = current_config.temp_dir
     tempfile.tempdir = current_config.temp_dir
@@ -224,6 +224,8 @@ def main():
 
     if sys.stdout.isatty():
         font_atlas.show()
+        import time
+        time.sleep(1)
     else:
         font_atlas.save(sys.stdout, format="png")
 

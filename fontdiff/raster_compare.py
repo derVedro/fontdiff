@@ -222,19 +222,25 @@ def create_atlas(config):
     #
     # convert all colors
     #
-    for k, v in config.items():
+                    # TODO that's bad
+    for k, v in config.__dict__.items():
         if k.endswith("color"):
-            config[k] = ImageColor.getcolor(v, "RGBA")
+            config.__dict__[k] = ImageColor.getcolor(v, "RGBA")
 
     ##########################################################################
     #
     # load fonts
     #
+
     for font in ["font_A", "font_B"]:
         try:
-            config[font] = ImageFont.truetype(str(config[font]), config.font_size)
+            setattr(
+                config,
+                font,
+                ImageFont.truetype(str(config.get(font)), config.font_size)
+            )
         except OSError as e:
-            print(f"Could not load '{config[font]}': {e}", file=sys.stderr)
+            print(f"Could not load '{config.get(font)}': {e}", file=sys.stderr)
             exit(1)
 
     img = Image.new(
