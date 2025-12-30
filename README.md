@@ -44,7 +44,7 @@ fontdiff --help
 ## Dependencies
 - python ≥3.11
 - pillow ≥10.1.0
-- skia-pathops ≥0.8.0
+- skia-pathops ≥0.8.0.post1
 - ziafont ≥0.11
 - numpy (optional)
 
