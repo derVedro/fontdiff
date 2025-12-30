@@ -6,7 +6,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from fontdiff.config import Config
-from fontdiff.raster_compare import create_atlas
 from fontdiff import __version__
 
 
@@ -25,6 +24,12 @@ def create_parser(config):
         '--version',
         action='version',
         version=f'{PROG_NAME} {__version__}'
+    )
+    parser.add_argument(
+        "-s", "--svg",
+        dest="svg_output",
+        action="store_true",
+        help="enable SVG output",
     )
     parser.add_argument(
         "--cell-size",
@@ -227,6 +232,12 @@ def init_config():
 
 def main():
     current_config = init_config()
+
+    if current_config.svg_output:
+        from fontdiff.svg_compare import create_atlas
+    else:
+        from fontdiff.raster_compare import create_atlas
+
     font_atlas = create_atlas(current_config)
 
     if sys.stdout.isatty():
