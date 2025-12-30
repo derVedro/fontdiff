@@ -1,9 +1,9 @@
-import sys, tempfile, webbrowser
+import sys, tempfile, webbrowser, struct
+from io import TextIOWrapper
 from itertools import product
 import ziafont
 from pathops import Path, PathVerb
 from pathops.operations import intersection as skia_intersection
-
 
 config = None
 
@@ -98,8 +98,8 @@ def create_atlas(config):
     for font in ["font_A", "font_B"]:
         try:
             setattr(config, font, ziafont.Font(str(config.get(font))))
-        except OSError as e:
-            print(f"Could not load '{config.get(font)}': {e}", file=sys.stderr)
+        except (OSError, struct.error) as e:
+            print(f"Could not load font '{config.get(font)}': {e}", file=sys.stderr)
             exit(1)
 
     svg_string = "\n".join([
@@ -170,6 +170,10 @@ class Dummy:
         self.save(svg_temp_file)
         webbrowser.get().open(svg_temp_file, new=2)
 
-    def save(self, filename, *args):
-        with open(filename, "w") as f:
-            f.write(self.svg_string)
+    def save(self, filename, *args, **kwargs):
+
+        if isinstance(filename, TextIOWrapper):
+            filename.write(self.svg_string)
+        else:
+            with open(filename, "w") as f:
+                f.write(self.svg_string)

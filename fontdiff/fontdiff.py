@@ -235,15 +235,17 @@ def main():
 
     if current_config.svg_output:
         from fontdiff.svg_compare import create_atlas
+        format = ""
     else:
         from fontdiff.raster_compare import create_atlas
+        format = "png"
 
     font_atlas = create_atlas(current_config)
 
     if sys.stdout.isatty():
         font_atlas.show()
     else:
-        font_atlas.save(sys.stdout, format="png")
+        font_atlas.save(sys.stdout, format=format)
 
 
 if __name__ == "__main__":

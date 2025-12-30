@@ -243,7 +243,7 @@ def create_atlas(config):
                 ImageFont.truetype(str(config.get(font)), config.font_size)
             )
         except OSError as e:
-            print(f"Could not load '{config.get(font)}': {e}", file=sys.stderr)
+            print(f"Could not load font '{config.get(font)}': {e}", file=sys.stderr)
             exit(1)
 
     img = Image.new(
