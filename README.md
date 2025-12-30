@@ -45,7 +45,7 @@ fontdiff --help
 - python ≥3.11
 - pillow ≥10.1.0
 - skia-pathops ≥0.8.0
-- ziafont ≥0.11"
+- ziafont ≥0.11
 - numpy (optional)
 
 ## Miscellaneous
