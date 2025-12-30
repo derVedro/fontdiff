@@ -7,18 +7,28 @@ from pathops.operations import intersection as skia_intersection
 
 config = None
 
+def generate_css():
+    return f'''    <style>
+        .a          {{fill: {config.a_color};}}
+        .b          {{fill: {config.b_color};}}
+        .overlap    {{fill: {config.overlap_color};}}
+        .baseline   {{stroke: {config.baseline_color};}}
+        .grid       {{stroke: {config.grid_color};}}
+        .background {{fill: {config.cell_background_color}; stroke: "none"}}        
+    </style>'''
+
 
 def generate_grid():
     width = config.cols * config.cell_width
     height = config.rows * config.cell_height
-    grid_string = '    <path d="'
+    grid_string = '    <path class="grid" d="'
     for col in range(config.cols + 1):
         grid_string += (f'M {col * config.cell_width}, 0 '
                         f'L {col * config.cell_width}, {height} ')
     for row in range(config.rows + 1):
         grid_string += (f'M 0, {row * config.cell_height} '
                         f'L {width}, {row * config.cell_height} ')
-    grid_string += f'" stroke="{config.grid_color}"/>'
+    grid_string += '"/>'
 
     return grid_string
 
@@ -37,10 +47,9 @@ def generate_background():
     height = config.rows * config.cell_height
 
     return (
-        f'    <path d="M 0, {-config.legend_height} '
+        f'    <path class="background" d="M 0, {-config.legend_height} '
         f'L {width}, {-config.legend_height} L {width}, {height} '
-        f'L {0}, {height} L {0}, {-config.legend_height} Z" '
-        f'stroke="none" fill="{config.cell_background_color}"/>'
+        f'L {0}, {height} L {0}, {-config.legend_height} Z" />'
     )
 
 
@@ -63,10 +72,10 @@ def generate_txt():
         skia_B_path = hoba(config.font_B.glyph(char), scale_B)
         intersection = get_intersection(skia_A_path, skia_B_path)
         path_string += f'''
-    <path d="{skia2d_path(skia_A_path)}" fill="{config.a_color}"/>
-    <path d="{skia2d_path(skia_B_path)}" fill="{config.b_color}"/>
-    <path d="{skia2d_path(intersection)}" fill="{config.overlap_color}"/>
-    <path d="M {x}, {y} L {x+config.cell_width}, {y}" stroke="{config.baseline_color}"/>'''
+    <path class="a" d="{skia2d_path(skia_A_path)}"/>
+    <path class="b" d="{skia2d_path(skia_B_path)}"/>
+    <path class="overlap" d="{skia2d_path(intersection)}"/>
+    <path class="baseline" d="M {x}, {y} L {x+config.cell_width}, {y}"/>'''
 
     return path_string
 
@@ -86,8 +95,8 @@ def generate_legend():
         f'''    <text x="{x_off}" y="{-config.legend_height * 0.5}" '''
         '''dominant-baseline="middle" '''
         f'''style="font-family: sans-serif; font-size:{font_size}">
-         <tspan fill="{config.a_color}">{font_A_name}</tspan>
-         <tspan dx="{gap}" fill="{config.b_color}">{font_B_name}</tspan>
+         <tspan class="a">{font_A_name}</tspan>
+         <tspan class="b" dx="{gap}">{font_B_name}</tspan>
     </text>'''
     )
 
@@ -104,6 +113,7 @@ def create_atlas(config):
 
     svg_string = "\n".join([
         generate_header(),
+        generate_css(),
         generate_background(),
         generate_txt(),
         generate_grid(),
