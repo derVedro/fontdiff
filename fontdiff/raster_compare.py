@@ -197,10 +197,9 @@ def add_legend(img):
     font_A_name = " ".join(config.font_A.getname())
     font_B_name = " ".join(config.font_B.getname())
 
-    offset = 2
-    x_off = offset * 2
+    x_off = 4
     y_off = config.legend_height / 2
-    smally = ImageFont.load_default(size=config.legend_height-offset*2)
+    smally = ImageFont.load_default(size=config.legend_height-x_off)
     left, _, right, _ = smally.getbbox(font_A_name)
     gap = config.legend_height
     x_pos_B = (right - left) + gap + x_off

@@ -78,14 +78,13 @@ def generate_legend():
     font_A_name = config.font_A.info.names.name
     font_B_name = config.font_B.info.names.name
 
-    y_off = 2
-    x_off = y_off * 2
-    font_size = config.legend_height - y_off * 2
+    x_off = 4
+    font_size = config.legend_height - x_off
     gap = config.legend_height
 
     return (
-        f'''    <text x="{x_off}" y="{-config.legend_height+y_off}" '''
-        '''dominant-baseline="hanging" '''
+        f'''    <text x="{x_off}" y="{-config.legend_height * 0.5}" '''
+        '''dominant-baseline="middle" '''
         f'''style="font-family: sans-serif; font-size:{font_size}">
          <tspan fill="{config.a_color}">{font_A_name}</tspan>
          <tspan dx="{gap}" fill="{config.b_color}">{font_B_name}</tspan>
