@@ -190,27 +190,31 @@ def put_grid(img, cell_dim, grid_color="black", thickness=1):
     return img
 
 
-# TODO make fontsize and other sizes rather depending on something not hard coded.
 def add_legend(img):
-    img_width, img_height = img.size
-    legend_height = 20
+    if config.legend_height <= 0:
+        return img
 
-    smally = ImageFont.load_default(size=legend_height - 5)
     font_A_name = " ".join(config.font_A.getname())
     font_B_name = " ".join(config.font_B.getname())
-    left, top, right, bottom = smally.getbbox(font_A_name)
 
+    offset = 2
+    x_off = offset * 2
+    y_off = config.legend_height / 2
+    smally = ImageFont.load_default(size=config.legend_height-offset*2)
+    left, _, right, _ = smally.getbbox(font_A_name)
+    gap = config.legend_height
+    x_pos_B = (right - left) + gap + x_off
+
+    img_width, img_height = img.size
     img_with_legend = Image.new(
         "RGBA",
-        (img_width, img_height + legend_height),
+        (img_width, img_height + config.legend_height),
         color=config.cell_background_color,
     )
-    img_with_legend.paste(img.convert("RGBA"), (0, legend_height))
+    img_with_legend.paste(img.convert("RGBA"), (0, config.legend_height))
     legend_draw = ImageDraw.Draw(img_with_legend)
-    legend_draw.text((5, 0), font_A_name, font=smally, fill=config.a_color)
-    legend_draw.text(
-        (5 + (right - left) + 20, 0), font_B_name, font=smally, fill=config.b_color
-    )
+    legend_draw.text((x_off, y_off), font_A_name, font=smally, fill=config.a_color, anchor="lm")
+    legend_draw.text((x_pos_B, y_off), font_B_name, font=smally, fill=config.b_color, anchor="lm")
 
     return img_with_legend
 

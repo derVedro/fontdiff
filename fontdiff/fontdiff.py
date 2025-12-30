@@ -205,6 +205,13 @@ def init_config():
 
     ##########################################################################
     #
+    # check for valid legend height
+    #
+    if current_config.legend_height < current_config._too_small_legend_size:
+        current_config.legend_height = 0
+
+    ##########################################################################
+    #
     # temp directory part
     #
     tmp_base = Path(
@@ -224,8 +231,6 @@ def main():
 
     if sys.stdout.isatty():
         font_atlas.show()
-        import time
-        time.sleep(1)
     else:
         font_atlas.save(sys.stdout, format="png")
 

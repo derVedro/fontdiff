@@ -72,22 +72,29 @@ def generate_txt():
 
 
 def generate_legend():
+    if config.legend_height <= 0:
+        return ""
+
     font_A_name = config.font_A.info.names.name
     font_B_name = config.font_B.info.names.name
 
+    y_off = 2
+    x_off = y_off * 2
+    font_size = config.legend_height - y_off * 2
+    gap = config.legend_height
+
     return (
-        f'''    <text x="0" y="{-config.legend_height}" dominant-baseline="hanging" '''
-        f'''style="font-family: sans-serif; font-size:{config.legend_height}">
+        f'''    <text x="{x_off}" y="{-config.legend_height+y_off}" '''
+        '''dominant-baseline="hanging" '''
+        f'''style="font-family: sans-serif; font-size:{font_size}">
          <tspan fill="{config.a_color}">{font_A_name}</tspan>
-         <tspan dx="{config.legend_height}" fill="{config.b_color}">{font_B_name}</tspan>
+         <tspan dx="{gap}" fill="{config.b_color}">{font_B_name}</tspan>
     </text>'''
     )
 
 
 def create_atlas(config):
     globals()["config"] = config
-
-    config.legend_height = 10
 
     for font in ["font_A", "font_B"]:
         try:
