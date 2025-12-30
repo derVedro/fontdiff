@@ -2,7 +2,8 @@
 
 ## Overview
 fontdiff is a tool to visually compare differences between two fonts by
-displaying character atlases overlaid.
+displaying character atlases overlaid. You run it and it just shows you the
+differences. It spits out PNGs or SVGs, and you can customise the output a bit.
 
 ## Install
 You can quickly install fontdiff into your home directory straight from github:
@@ -33,6 +34,9 @@ fontdiff --cell-size 30 --chars "abcde1234!@#$" fontA.ttf fontB.ttf
 # save result as file
 fontdiff fontA.ttf fontB.ttf > diff.png
 
+# SVG output
+fontdiff -s fontA.ttf fontB.ttf
+
 # consider to check all the possible options
 fontdiff --help
 ```
@@ -40,10 +44,13 @@ fontdiff --help
 ## Dependencies
 - python ≥3.11
 - pillow ≥10.1.0
+- skia-pathops ≥0.8.0
+- ziafont ≥0.11"
 - numpy (optional)
 
 ## Miscellaneous
 You can configure fontdiff by putting a toml `config` file into
 `$XDG_CONFIG_HOME/fontdiff/` or `$HOME/.fontdiff/` directory. An [example](config)
-configuration file is provided in this repository. It's worth taking a look if
-you need additional functionality like character sets, size or color settings.
+configuration file is provided in this repository. It's worth taking a look into
+if you need additional functionality like extra character sets, setting sizes
+or colors.
