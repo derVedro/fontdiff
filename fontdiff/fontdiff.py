@@ -75,8 +75,8 @@ def read_defaults() -> Config:
     """
     import fontdiff.defaults, fontdiff.alphabets
 
-    config = Config().update_from_module(fontdiff.defaults)
-    config.charsets = Config().update_from_module(fontdiff.alphabets)
+    config = Config(fontdiff.defaults)
+    config.charsets = Config(fontdiff.alphabets)
 
     return config
 
@@ -95,7 +95,7 @@ def read_config():
     if config_path.exists():
         with config_path.open("rb") as config_file:
             try:
-                return Config().update_from_dict(tomllib.load(config_file))
+                return Config(tomllib.load(config_file))
             except tomllib.TOMLDecodeError as e:
                 print(f"Bad config file {config_path}:\n{e}", file=sys.stderr)
 
@@ -119,7 +119,7 @@ def init_config():
     current_config.update(toml)
     parser = create_parser(current_config)  # parser already depends on config!
     args = parser.parse_args()
-    current_config.update_from_dict(args.__dict__)
+    current_config.update(args.__dict__)
 
     ##########################################################################
     #
