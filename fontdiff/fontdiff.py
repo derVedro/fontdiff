@@ -54,7 +54,7 @@ def create_parser(config):
         help="Second font file/path (required)"
     )
 
-    if hasattr(config, "charsets"):
+    if "charsets" in config:
         charsets = parser.add_argument_group("Character sets")
         for key, value in config.charsets.items():
             charsets.add_argument(
@@ -102,6 +102,93 @@ def read_config():
     return Config()
 
 
+def prepare_additional_charsets(config, args, toml, default):
+    """add extra symbols from character sets to config"""
+
+    additional_chars = (
+        "".join(args.additional_chars) if "additional_chars" in args else ""
+    )
+    if args.chars:
+        config.chars = args.chars + additional_chars
+    elif "chars" in toml:
+        config.chars = toml.chars + additional_chars
+    elif additional_chars:
+        config.chars = additional_chars
+    else:
+        config.chars = default.chars
+
+    return config
+
+
+def calculate_cell_and_font_sizes(config, args, toml, default):
+    """
+    all necessary calculation for cell, font, baseline sizes or
+    recalculation of them if something was only partly provided
+    """
+
+    if "cell_size" in args:
+        config.font_size = round(args.cell_size * config._font_size_factor)
+        config.base_line = round(args.cell_size * config._base_line_factor)
+    else:
+        ref_value = toml.get(
+            "cell_height", toml.get("cell_size", config.cell_size)
+        )
+        config.font_size = toml.get(
+            "font_size",
+            round(ref_value * config._font_size_factor)
+        )
+        config.base_line = toml.get(
+            "base_line",
+            round(ref_value * config._base_line_factor)
+        )
+
+    config.cell_width = config.get("cell_width", config.cell_size)
+    config.cell_height = config.get("cell_height", config.cell_size)
+
+    return config
+
+
+def calculate_proper_grid_size(config: Config):
+    """all necessary calculation for grid size: columns and rows amount"""
+
+    import math
+
+    len_chars = len(config.chars)
+    has_vertical = config.get("rows", 0) > 0
+    has_horizontal = config.get("cols", 0) > 0
+    if has_vertical and has_horizontal:
+        pass
+    elif has_vertical and not has_horizontal:
+        config.cols = math.ceil(len_chars / config.rows)
+    elif not has_vertical and has_horizontal:
+        config.rows = math.ceil(len_chars / config.cols)
+    elif not has_vertical and not has_horizontal:
+        root = math.ceil(len_chars ** 0.5)
+        lower_bound = math.floor(
+            config._cols_rows_ratio ** -0.5 * root) or 1
+        _reminder, side = min(
+            map(lambda probe: (len_chars % probe, probe),
+                range(lower_bound, root + 1)),
+            key=lambda some: some[0],
+        )
+        config.rows = side
+        config.cols = math.ceil(len_chars / side)
+
+
+def prepare_temp_directory(config: Config):
+    """handle temp directory creation"""
+
+    tmp_base = Path(
+        config.get("temp_dir", Path(tempfile.gettempdir()) / PROG_NAME)
+    )
+    config.temp_dir = str(tmp_base)
+    tmp_base.mkdir(parents=True, exist_ok=True)
+    os.environ["TMPDIR"] = config.temp_dir
+    tempfile.tempdir = config.temp_dir
+
+    return config
+
+
 def init_config():
     """
     Resolve the final configuration used by the program.
@@ -121,76 +208,9 @@ def init_config():
     args = parser.parse_args()
     current_config.update(args.__dict__)
 
-    ##########################################################################
-    #
-    # characters and extra characters part
-    #
-    additional_chars = (
-        "".join(args.additional_chars) if hasattr(args, "additional_chars") else ""
-    )
-    if args.chars:
-        current_config.chars = args.chars + additional_chars
-    elif toml.get("chars"):
-        current_config.chars = toml.chars + additional_chars
-    elif additional_chars:
-        current_config.chars = additional_chars
-    else:
-        current_config.chars = default.chars
-
-    ##########################################################################
-    #
-    # cell, font, baseline sizes calculation part
-    #
-    if current_config.cell_size != default.cell_size:
-
-        if hasattr(args, "cell_size") and args.cell_size != default.cell_size:
-            current_config.font_size = round(
-                args.cell_size * current_config._font_size_factor
-            )
-            current_config.base_line = round(
-                args.cell_size * current_config._base_line_factor
-            )
-        else:
-            current_config.font_size = toml.get(
-                "font_size",
-                round(current_config.cell_size * current_config._font_size_factor),
-            )
-            current_config.base_line = toml.get(
-                "base_line",
-                round(current_config.cell_size * current_config._base_line_factor),
-            )
-
-    current_config.cell_width = current_config.get(
-        "cell_width", current_config.cell_size
-    )
-    current_config.cell_height= current_config.get(
-        "cell_height", current_config.cell_size
-    )
-
-    ##########################################################################
-    #
-    # all necessary calculation for grid size: columns and rows amount
-    #
-    import math
-
-    len_chars = len(current_config.chars)
-    has_vertical = current_config.get("rows", 0) > 0
-    has_horizontal = current_config.get("cols", 0) > 0
-    if has_vertical and has_horizontal:
-        pass
-    elif has_vertical and not has_horizontal:
-        current_config.cols = math.ceil(len_chars / current_config.rows)
-    elif not has_vertical and has_horizontal:
-        current_config.rows = math.ceil(len_chars / current_config.cols)
-    elif not has_vertical and not has_horizontal:
-        root = math.ceil(len_chars**0.5)
-        lower_bound = math.floor(current_config._cols_rows_ratio**-0.5 * root) or 1
-        _reminder, side = min(
-            map(lambda probe: (len_chars % probe, probe), range(lower_bound, root + 1)),
-            key=lambda some: some[0],
-        )
-        current_config.rows = side
-        current_config.cols = math.ceil(len_chars / side)
+    prepare_additional_charsets(current_config, args, toml, default)
+    calculate_cell_and_font_sizes(current_config, args, toml, default)
+    calculate_proper_grid_size(current_config)
 
     ##########################################################################
     #
@@ -215,20 +235,9 @@ def init_config():
     if current_config.legend_height < current_config._too_small_legend_size:
         current_config.legend_height = 0
 
-    ##########################################################################
-    #
-    # temp directory part
-    #
-    tmp_base = Path(
-        current_config.get("temp_dir", Path(tempfile.gettempdir()) / PROG_NAME)
-    )
-    current_config.temp_dir = str(tmp_base)
-    tmp_base.mkdir(parents=True, exist_ok=True)
-    os.environ["TMPDIR"] = current_config.temp_dir
-    tempfile.tempdir = current_config.temp_dir
+    prepare_temp_directory(current_config)
 
     return current_config
-
 
 def main():
     current_config = init_config()
