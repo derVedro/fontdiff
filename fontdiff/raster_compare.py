@@ -39,7 +39,7 @@ def merge_glyphs(a_glyph, b_glyph, a_baseline, b_baseline):
 @cache
 def __stmul(tup, s):
     """
-    scale color 3-tuple :tup: with value :s: and output 4-tuple with :s: on last position
+    scale color 3-tuple or 4-tuple :tup: with skalar :s:
     """
 
     return tuple(s * val // 255 for val in tup)
@@ -72,7 +72,7 @@ def _merge_with_pillow(a_glyph, b_glyph,
             elif a_val > 0 and b_val > 0:
                 max_val = max(a_val, b_val)
                 output.putpixel((x, y), __stmul(config.overlap_color, max_val))
-            # else transparent? but who cares.
+            # else transparent background? but who cares.
 
     return output
 
@@ -225,8 +225,7 @@ def create_atlas(config):
     #
     # convert all colors
     #
-                    # TODO that's bad
-    for k, v in config.__dict__.items():
+    for k, v in config.items():
         if k.endswith("color"):
             config.__dict__[k] = ImageColor.getcolor(v, "RGBA")
 
@@ -234,7 +233,6 @@ def create_atlas(config):
     #
     # load fonts
     #
-
     for font in ["font_A", "font_B"]:
         try:
             setattr(

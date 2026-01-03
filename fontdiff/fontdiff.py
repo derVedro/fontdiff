@@ -6,10 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from fontdiff.config import Config
-from fontdiff import __version__
-
-
-PROG_NAME = "fontdiff"
+from fontdiff import __version__, __program_name__
 
 
 def create_parser(config):
@@ -23,7 +20,7 @@ def create_parser(config):
     parser.add_argument(
         '--version',
         action='version',
-        version=f'{PROG_NAME} {__version__}'
+        version=f'{__program_name__} {__version__}'
     )
     parser.add_argument(
         "-s", "--svg",
@@ -88,9 +85,9 @@ def read_config():
     """
     xdg_config_home = os.getenv("XDG_CONFIG_HOME")
     if xdg_config_home:
-        config_path = Path(xdg_config_home) / PROG_NAME / "config"
+        config_path = Path(xdg_config_home) / __program_name__ / "config"
     else:
-        config_path = Path.home() / f".{PROG_NAME}" / "config"
+        config_path = Path.home() / f".{__program_name__}" / "config"
 
     if config_path.exists():
         with config_path.open("rb") as config_file:
@@ -179,7 +176,7 @@ def prepare_temp_directory(config: Config):
     """handle temp directory creation"""
 
     tmp_base = Path(
-        config.get("temp_dir", Path(tempfile.gettempdir()) / PROG_NAME)
+        config.get("temp_dir", Path(tempfile.gettempdir()) / __program_name__)
     )
     config.temp_dir = str(tmp_base)
     tmp_base.mkdir(parents=True, exist_ok=True)
