@@ -86,7 +86,7 @@ def generate_legend():
         f'''{d_rect(0, 0, config.cols*config.cell_width, -config.legend_height)}"/>
         <text x="{x_off}" y="{-config.legend_height * 0.5}" '''
         '''dominant-baseline="middle" '''
-        f'''style="font-family: sans-serif; font-size:{font_size}">
+        f'''style="font-family: sans-serif; font-size:{font_size}px">
              <tspan class="a">{font_A_name}</tspan>
              <tspan class="b" dx="{gap}">{font_B_name}</tspan>
         </text>
