@@ -31,6 +31,14 @@ def d_rect(x, y, width,height):
     return f'M {x} {y} L {x+width} {y} L {x+width} {y+height} L {x} {y+height} L {x} {y} Z'
 
 
+def generate_background():
+    width = config.cols * config.cell_width
+    height = config.rows * config.cell_height
+    background_d = d_rect(0, -config.legend_height, width, height + config.legend_height)
+
+    return f'    <path class="background" d="{background_d}"/>'
+
+
 def generate_cells():
     path_string = ""
     scale_A = config.font_size / config.font_A.info.layout.unitsperem
@@ -99,6 +107,7 @@ def create_atlas(config):
     svg_string = "\n".join([
         generate_header(),
         generate_css(),
+        generate_background(),
         generate_legend(),
         generate_cells(),
         "</svg>"
