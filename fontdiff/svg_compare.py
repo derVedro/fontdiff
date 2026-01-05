@@ -61,11 +61,11 @@ def generate_cells():
         d_background = d_rect(x, y, config.cell_width, config.cell_height)
         path_string += f'''
     <g> 
-        <path class="cell-background" d="{d_background}"/>        
+        <path class="cell-background" d="{d_background}"/>
         <path class="a" d="{skia2d_path(skia_A_path)}"/>
         <path class="b" d="{skia2d_path(skia_B_path)}"/>
         <path class="overlap" d="{skia2d_path(intersection)}"/>
-        <path class="baseline" d="M {x}, {y_bs} L {x+config.cell_width}, {y_bs}"/>        
+        <path class="baseline" d="M {x}, {y_bs} L {x+config.cell_width}, {y_bs}"/>
     </g>'''
 
     return path_string
