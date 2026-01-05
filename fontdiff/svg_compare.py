@@ -9,28 +9,13 @@ config = None
 
 def generate_css():
     return f'''    <style>
-        .a          {{fill: {config.a_color};}}
-        .b          {{fill: {config.b_color};}}
-        .overlap    {{fill: {config.overlap_color};}}
-        .baseline   {{stroke: {config.baseline_color};}}
-        .grid       {{stroke: {config.grid_color};}}
-        .background {{fill: {config.cell_background_color}; stroke: "none"}}        
+        .a                 {{fill: {config.a_color};}}
+        .b                 {{fill: {config.b_color};}}
+        .overlap           {{fill: {config.overlap_color};}}
+        .baseline          {{stroke: {config.baseline_color};}}
+        .legend-background {{fill: {config.cell_background_color}; stroke: {config.cell_background_color}}}
+        .cell-background   {{fill: {config.cell_background_color}; stroke: {config.grid_color};}}       
     </style>'''
-
-
-def generate_grid():
-    width = config.cols * config.cell_width
-    height = config.rows * config.cell_height
-    grid_string = '    <path class="grid" d="'
-    for col in range(config.cols + 1):
-        grid_string += (f'M {col * config.cell_width}, 0 '
-                        f'L {col * config.cell_width}, {height} ')
-    for row in range(config.rows + 1):
-        grid_string += (f'M 0, {row * config.cell_height} '
-                        f'L {width}, {row * config.cell_height} ')
-    grid_string += '"/>'
-
-    return grid_string
 
 
 def generate_header():
@@ -42,18 +27,11 @@ def generate_header():
     )
 
 
-def generate_background():
-    width = config.cols * config.cell_width
-    height = config.rows * config.cell_height
-
-    return (
-        f'    <path class="background" d="M 0, {-config.legend_height} '
-        f'L {width}, {-config.legend_height} L {width}, {height} '
-        f'L {0}, {height} L {0}, {-config.legend_height} Z" />'
-    )
+def d_rect(x, y, width,height):
+    return f'M {x} {y} L {x+width} {y} L {x+width} {y+height} L {x} {y+height} L {x} {y} Z'
 
 
-def generate_txt():
+def generate_cells():
     path_string = ""
     scale_A = config.font_size / config.font_A.info.layout.unitsperem
     scale_B = config.font_size / config.font_B.info.layout.unitsperem
@@ -62,20 +40,25 @@ def generate_txt():
         bbox = glyph.bbox
         skia_path = glyph2skia_path(glyph)
         off = (config.cell_width - (bbox.xmax - bbox.xmin) * scale) / 2
-        transform = (scale, 0, 0, -scale, x + off, y, 0, 0, 1)
+        transform = (scale, 0, 0, -scale, x + off, y_bs, 0, 0, 1)
         return skia_path.transform(*transform)
 
     for char, (row, col) in zip(config.chars, product(range(config.rows), range(config.cols))):
         x = col * config.cell_width
-        y = row * config.cell_height + config.base_line
+        y = row * config.cell_height
+        y_bs = y + config.base_line
         skia_A_path = hoba(config.font_A.glyph(char), scale_A)
         skia_B_path = hoba(config.font_B.glyph(char), scale_B)
         intersection = get_intersection(skia_A_path, skia_B_path)
+        d_background = d_rect(x, y, config.cell_width, config.cell_height)
         path_string += f'''
-    <path class="a" d="{skia2d_path(skia_A_path)}"/>
-    <path class="b" d="{skia2d_path(skia_B_path)}"/>
-    <path class="overlap" d="{skia2d_path(intersection)}"/>
-    <path class="baseline" d="M {x}, {y} L {x+config.cell_width}, {y}"/>'''
+    <g> 
+        <path class="cell-background" d="{d_background}"/>        
+        <path class="a" d="{skia2d_path(skia_A_path)}"/>
+        <path class="b" d="{skia2d_path(skia_B_path)}"/>
+        <path class="overlap" d="{skia2d_path(intersection)}"/>
+        <path class="baseline" d="M {x}, {y_bs} L {x+config.cell_width}, {y_bs}"/>        
+    </g>'''
 
     return path_string
 
@@ -86,18 +69,20 @@ def generate_legend():
 
     font_A_name = config.font_A.info.names.name
     font_B_name = config.font_B.info.names.name
-
     x_off = 4
     font_size = config.legend_height - x_off
     gap = config.legend_height
 
-    return (
-        f'''    <text x="{x_off}" y="{-config.legend_height * 0.5}" '''
+    return (f'''    <g>
+        <path class="legend-background" d="'''
+        f'''{d_rect(0, 0, config.cols*config.cell_width, -config.legend_height)}"/>
+        <text x="{x_off}" y="{-config.legend_height * 0.5}" '''
         '''dominant-baseline="middle" '''
         f'''style="font-family: sans-serif; font-size:{font_size}">
-         <tspan class="a">{font_A_name}</tspan>
-         <tspan class="b" dx="{gap}">{font_B_name}</tspan>
-    </text>'''
+             <tspan class="a">{font_A_name}</tspan>
+             <tspan class="b" dx="{gap}">{font_B_name}</tspan>
+        </text>
+    </g>'''
     )
 
 
@@ -114,10 +99,8 @@ def create_atlas(config):
     svg_string = "\n".join([
         generate_header(),
         generate_css(),
-        generate_background(),
-        generate_txt(),
-        generate_grid(),
         generate_legend(),
+        generate_cells(),
         "</svg>"
     ])
 
