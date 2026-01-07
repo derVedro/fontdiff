@@ -1,4 +1,4 @@
-import sys, tempfile, webbrowser, struct
+import sys, tempfile, webbrowser, struct, unicodedata
 from io import TextIOWrapper
 from itertools import product
 import ziafont
@@ -106,6 +106,14 @@ def generate_cells():
     scale_A = config.font_size / config.font_A.info.layout.unitsperem
     scale_B = config.font_size / config.font_B.info.layout.unitsperem
 
+    def label_cell():
+        try:
+            char_name = unicodedata.name(char)
+            char_name = char_name.replace(" ", "-")
+        except ValueError:
+            char_name = "XXX"
+        return f"_{row:02d}-{col:02d}_{char_name}"
+
     def hoba(glyph, scale):
         bbox = glyph.bbox
         skia_path = glyph2skia_path(glyph)
@@ -122,7 +130,7 @@ def generate_cells():
         intersection = get_intersection(skia_A_path, skia_B_path)
         d_background = d_rect(x, y, config.cell_width, config.cell_height)
         path_string += f'''
-    <g class="cell-group">
+    <g class="cell-group" id="{label_cell()}">
         <path class="cell-background" d="{d_background}"/>
         <path class="a" d="{skia2d_path(skia_A_path)}"/>
         <path class="b" d="{skia2d_path(skia_B_path)}"/>
