@@ -9,12 +9,14 @@ config = None
 
 def generate_css():
     return f'''    <style>
-        .a                 {{fill: {config.a_color};}}
-        .b                 {{fill: {config.b_color};}}
-        .overlap           {{fill: {config.overlap_color};}}
-        .baseline          {{stroke: {config.baseline_color};}}
-        .legend-background {{fill: {config.cell_background_color}; stroke: {config.cell_background_color}}}
-        .cell-background   {{fill: {config.cell_background_color}; stroke: {config.grid_color};}}       
+        .a                              {{fill: {config.a_color};}}
+        .b                              {{fill: {config.b_color};}}
+        .overlap                        {{fill: {config.overlap_color};}}
+        .baseline                       {{stroke: {config.baseline_color};}}
+        .background, .legend-background {{fill: {config.cell_background_color}; stroke: {config.cell_background_color};}}
+        .cell-background                {{fill: {config.cell_background_color}; stroke: {config.grid_color};}}
+        .cell-group                     {{transition: all 0.05s ease;}}
+        .cell-group.expanded            {{filter: drop-shadow(0 0 2px rgba(128,128,128,0.95));}}       
     </style>'''
 
 
@@ -23,8 +25,68 @@ def generate_header():
         f'<svg version="1.1" xmlns="http://www.w3.org/2000/svg" '
         f'viewBox="0 {-config.legend_height} '
         f'{config.cols * config.cell_width} '
-        f'{config.rows * config.cell_height + config.legend_height}">'
+        f'{config.rows * config.cell_height + config.legend_height}" '
+        'height="100%" width="100%">'
     )
+
+
+def generate_script():
+    return '''    <script type="text/javascript"><![CDATA[
+        function handleCellClick(event) {
+            const cell = event.currentTarget;
+            const isExpanded = cell.classList.contains('expanded');
+            const svg = cell.ownerSVGElement;
+            const viewBox = svg.viewBox.baseVal;
+            
+            document.querySelectorAll('.cell-group.expanded').forEach(otherCell => {
+                if (otherCell !== cell) {
+                    otherCell.classList.remove('expanded');
+                    otherCell.removeAttribute('transform');
+                }
+            });
+            
+            if (isExpanded) {
+                // Collapse current cell
+                cell.classList.remove('expanded');
+                cell.removeAttribute('transform');
+            } else {
+                expandCell(cell, svg, viewBox);
+            }
+        }
+        
+        function expandCell(cell, svg, viewBox) {
+            const bbox = cell.getBBox();            
+            const viewWidth = viewBox.width;
+            const viewHeight = viewBox.height;                        
+            const scaleX = viewWidth  / bbox.width;
+            const scaleY = viewHeight / bbox.height;
+            const scale = Math.min(scaleX, scaleY) * 0.9;            
+            
+            const tx = -bbox.x * scale + (viewWidth - bbox.width * scale) / 2;
+            const ty = -bbox.y * scale + (viewHeight - bbox.height * scale + viewBox.y) / 2;
+
+            cell.setAttribute('transform', 
+                `matrix(${scale}, 0, 0, ${scale}, ${tx}, ${ty})`);
+            
+            cell.classList.add('expanded');
+            
+            // Bring to front
+            cell.parentNode.appendChild(cell);
+        }
+        
+        function initCells() {
+            const cells = document.querySelectorAll('.cell-group');
+            cells.forEach(cell => {
+                cell.addEventListener('click', handleCellClick);
+            });
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCells);
+        } else {
+            initCells();
+        }
+    ]]></script>'''
 
 
 def d_rect(x, y, width,height):
@@ -60,7 +122,7 @@ def generate_cells():
         intersection = get_intersection(skia_A_path, skia_B_path)
         d_background = d_rect(x, y, config.cell_width, config.cell_height)
         path_string += f'''
-    <g> 
+    <g class="cell-group">
         <path class="cell-background" d="{d_background}"/>
         <path class="a" d="{skia2d_path(skia_A_path)}"/>
         <path class="b" d="{skia2d_path(skia_B_path)}"/>
@@ -107,6 +169,7 @@ def create_atlas(config):
     svg_string = "\n".join([
         generate_header(),
         generate_css(),
+        generate_script(),
         generate_background(),
         generate_legend(),
         generate_cells(),
