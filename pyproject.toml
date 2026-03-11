@@ -14,6 +14,18 @@ authors = [
   { name="derVedro", email="dervedro@googlemail.com" },
 ]
 
+classifiers = [
+    "Development Status :: 5 - Production/Stable",  # Mature repo
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Other Audience",
+    "Topic :: Utilities",
+    "Topic :: Multimedia :: Graphics",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent",
+]
+
 [project.urls]
 Homepage = "https://github.com/derVedro/fontdiff"
 Issues = "https://github.com/derVedro/fontdiff/issues"
