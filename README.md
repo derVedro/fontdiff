@@ -1,4 +1,4 @@
-# <img src="./fontdiff.svg" width="400" height="100"/>
+# <img src="https://github.com/derVedro/fontdiff/raw/master/fontdiff.svg" width="400" height="100"/>
 
 ## Overview
 fontdiff is a tool to visually compare differences between two fonts by
@@ -7,16 +7,16 @@ differences. It spits out PNGs or dynamic SVGs, and you can customise the
 output a bit.
 
 ## Install
-You can quickly install fontdiff into your home directory straight from github:
-```
-pip install --user git+https://github.com/derVedro/fontdiff.git
+You can just quickly install fontdiff with pip:
+```shell
+pip install fontdiff
 ```
 
 Alternatively, you can clone the repo and simply run fontdiff.py as a script,
 or even place a symlink of fontdiff.py to your preferred bin directory. However,
 you may need to install all dependencies using pip first if you haven't done so
 already.
-```
+```shell
 git clone https://github.com/derVedro/fontdiff.git
 cd fontdiff/fontdiff
 chmod +x fontdiff.py
@@ -24,7 +24,7 @@ ln -s $PWD/fontdiff.py ~/bin/fontdiff
 ```
 
 ## Usage Examples
-```
+```shell
 # regular usage
 fontdiff fontA.ttf fontB.ttf
 

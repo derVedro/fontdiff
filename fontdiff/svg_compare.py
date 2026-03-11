@@ -89,7 +89,7 @@ def generate_script():
     ]]></script>'''
 
 
-def d_rect(x, y, width,height):
+def d_rect(x, y, width, height):
     return f'M {x} {y} L {x+width} {y} L {x+width} {y+height} L {x} {y+height} L {x} {y} Z'
 
 
