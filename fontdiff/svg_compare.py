@@ -117,7 +117,7 @@ def generate_cells():
     def hoba(glyph, scale):
         bbox = glyph.bbox
         skia_path = glyph2skia_path(glyph)
-        off = (config.cell_width - (bbox.xmax - bbox.xmin) * scale) / 2
+        off = (config.cell_width - (bbox.xmax - bbox.xmin) * scale ) / 2 - bbox.xmin * scale
         transform = (scale, 0, 0, -scale, x + off, y_bs, 0, 0, 1)
         return skia_path.transform(*transform)
 
