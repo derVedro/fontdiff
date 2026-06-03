@@ -199,12 +199,11 @@ def add_legend(img):
 
     x_off = 4
     y_off = config.legend_height / 2
-    smally = ImageFont.load_default(size=config.legend_height-x_off)
-    left, _, right, _ = smally.getbbox(font_A_name)
-    gap = config.legend_height
-    x_pos_B = (right - left) + gap + x_off
-
     img_width, img_height = img.size
+    
+    smally = ImageFont.load_default(size=config.legend_height-x_off)
+    x_pos_B = img_width - smally.getlength(font_B_name) - x_off
+
     img_with_legend = Image.new(
         "RGBA",
         (img_width, img_height + config.legend_height),
