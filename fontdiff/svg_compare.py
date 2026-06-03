@@ -16,7 +16,10 @@ def generate_css():
         .background, .legend-background {{fill: {config.cell_background_color}; stroke: {config.cell_background_color};}}
         .cell-background                {{fill: {config.cell_background_color}; stroke: {config.grid_color};}}
         .cell-group                     {{transition: all 0.05s ease;}}
-        .cell-group.expanded            {{filter: drop-shadow(0 0 2px rgba(128,128,128,0.95));}}       
+        .cell-group.expanded            {{filter: drop-shadow(0 0 2px rgba(128,128,128,0.95));}}
+        .legend-text                    {{font-family: sans-serif; dominant-baseline: central;}}
+        .legend-text.a                  {{text-anchor: start;}}
+        .legend-text.b                  {{text-anchor: end;}}       
     </style>'''
 
 
@@ -147,22 +150,15 @@ def generate_legend():
 
     font_A_name = config.font_A.info.names.name
     font_B_name = config.font_B.info.names.name
-    x_off = 4
+    x_off = 8
     font_size = config.legend_height - x_off
-    gap = config.legend_height
+    total_width = config.cols * config.cell_width
 
-    return (f'''    <g>
-        <path class="legend-background" d="'''
-        f'''{d_rect(0, 0, config.cols*config.cell_width, -config.legend_height)}"/>
-        <text x="{x_off}" y="{-config.legend_height*0.5}" '''
-        '''dominant-baseline="central" '''
-        f'''style="font-family: sans-serif; font-size: {font_size}px">
-             <tspan class="a">{font_A_name}</tspan>
-             <tspan class="b" dx="{gap}">{font_B_name}</tspan>
-        </text>
+    return f'''    <g>
+        <path class="legend-background" d="{d_rect(0, 0, total_width, -config.legend_height)}"/>
+        <text x="{x_off}" y="{-config.legend_height * 0.5}" class="legend-text a" style="font-size: {font_size}px">{font_A_name}</text>
+        <text x="{total_width - x_off}" y="{-config.legend_height * 0.5}" class="legend-text b" style="font-size: {font_size}px">{font_B_name}</text>
     </g>'''
-    )
-
 
 def create_atlas(config):
     globals()["config"] = config
