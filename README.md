@@ -6,6 +6,9 @@ displaying character atlases overlaid. You run it and it just shows you the
 differences. It spits out PNGs or dynamic SVGs, and you can customise the
 output a bit.
 
+# <img src="https://github.com/derVedro/fontdiff/raw/master/Arial_vs_Helvetica.svg"/>
+
+
 ## Install
 You can just quickly install fontdiff with pip:
 ```shell
