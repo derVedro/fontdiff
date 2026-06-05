@@ -148,8 +148,8 @@ def generate_legend():
     if config.legend_height <= 0:
         return ""
 
-    font_A_name = config.font_A.info.names.name
-    font_B_name = config.font_B.info.names.name
+    font_A_name = config.font_A.info.names.name + " " + config.font_A.info.names.subfamily
+    font_B_name = config.font_B.info.names.name + " " + config.font_B.info.names.subfamily
     x_off = 8
     font_size = config.legend_height - x_off
     total_width = config.cols * config.cell_width
